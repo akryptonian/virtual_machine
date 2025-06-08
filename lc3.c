@@ -1,5 +1,20 @@
+#include <stdio.h>
+#include <stdint.h>
+#include <signal.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <sys/time.h>
+#include <sys/types.h>
+#include <sys/termios.h>
+#include <sys/mman.h>
+
 #define MEMORY_MAX (1 << 16)
+
 uint16_t memory[MEMORY_MAX]; // 65_536 locations
+uint16_t reg[R_COUNT];
+
+// Registers
 
 enum
 {
@@ -16,7 +31,16 @@ enum
   R_COUNT
 };
 
-uint16_t reg[R_COUNT];
+// Condition flags
+
+enum
+{
+  FL_POS = 1 << 0, // P
+  FL_ZRO = 1 << 1, // Z
+  FL_NEG = 1 << 2, // N
+};
+
+// Opcodes
 
 enum
 {
