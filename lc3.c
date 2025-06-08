@@ -171,6 +171,15 @@ int main(int argc, const char* argv[])
       break;
 
       case OP_LDI:
+      {
+        // Destination register (DR)
+        uint16_t r0 = (instr >> 9) & 0x7;
+        // PCoffset 9
+        uint16_t pc_offset = sign_extend(instr & 0X1FF, 9);
+        // Add pc_offset to the current PC, look at that memory location to get the final address
+        reg[r0] = mem_read(mem_read(reg[R_PC] + pc_offset));
+        update_flags(r0);
+      }
       break;
 
       case OP_LDR:
