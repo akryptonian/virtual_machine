@@ -192,9 +192,28 @@ int main(int argc, const char* argv[])
       break;
 
       case OP_JMP:
+      {
+        // Also handles RET
+        uint16_t r1 = (instr >> 6) & 0x7;
+        reg[R_PC] = reg[r1];
+      }
       break;
 
       case OP_JSR:
+      {
+        uint16_t flag = (instr >> 11) & 0x1;
+        reg[R_R7] = reg[R_PC];
+        if (!flag) // JSRR
+        {
+          uint16_t r1 = (instr >> 6) & 0x7;
+          reg[R_PC] = reg[r1];
+        }
+        else // JSR
+        {
+          uint16_t pc_offset = instr & 0x7FF;
+          reg[PC] += sign_extend(pc_offset, 11);
+        }
+      }
       break;
 
       case OP_LD:
@@ -230,7 +249,7 @@ int main(int argc, const char* argv[])
       case OP_RES:
       case OP_RTI:
       default:
-        // Bad Opcode
+        abort();// Bad Opcode
         break;
     }
   } 
