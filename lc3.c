@@ -177,6 +177,18 @@ int main(int argc, const char* argv[])
       break;
 
       case OP_BR:
+      {
+        uint16_t n = (instr >> 9) & 0x4;
+        uint16_t z = (instr >> 9) & 0x2;
+        uint16_t p = (instr >> 9) & 0x1;
+        uint16_t pc_offset = instr & 0x1FF;
+
+        if ((n && FL_NEG) || (z && FL_ZRO) || (p && FL_POS))
+        {
+          reg[R_PC] += sign_extend(pc_offset, 9);  
+        }
+        //update_flags(PC); // Why we don't need this?
+      }
       break;
 
       case OP_JMP:
