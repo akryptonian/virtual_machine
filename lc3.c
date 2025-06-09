@@ -174,6 +174,13 @@ int main(int argc, const char* argv[])
       break;
 
       case OP_NOT:
+      {
+        uint16_t r0 = (instr >> 9) & 0x7;
+        uint16_t r1 = (instr >> 6) & 0x7;
+
+        reg[r0] = ~(reg[r1]);
+        update_flags(r0);
+      }
       break;
 
       case OP_BR:
@@ -217,6 +224,13 @@ int main(int argc, const char* argv[])
       break;
 
       case OP_LD:
+      {
+        uint16_t r0 = (instr >> 9) & 0x7; // Destination
+        uint16_t pc_offset = (instr) & 0x1FF;
+        
+        reg[r0] = mem_read(reg[R_PC] + sign_extend(pc_offset, 9));
+        update_flags(r0);
+      }
       break;
 
       case OP_LDI:
@@ -232,18 +246,61 @@ int main(int argc, const char* argv[])
       break;
 
       case OP_LDR:
+      {
+        uint16_t r0 = (instr >> 9) & 0x7;
+        uint16_t r1 = (instr >> 6) & 0x7; //BaseR
+        uint16_t offset = sign_extend((instr & 0x3F, 6);
+        
+        reg[r0] = mem_read(reg[r1] + offset);
+        update_flags(r0);
+      }
       break;
 
       case OP_LEA:
+      {
+        uint16_t r0 = (instr >> 9) & 0x7;
+        uint16_t pc_offset = sign_extend(instr & 0x1FF, 9);
+
+        reg[r0] = reg[R_PC] + pc_offset;
+        update_flags(r0);
+      }
       break;
     
       case OP_ST:
+      {
+        uint16_t r1 = (instr >> 9) & 0x7;
+        uint16_t pc_offset = sign_extend(instr & 0x1FF, 9);
+
+        reg[r1] = mem_read(reg[R_PC] + pc_offset); // Is it compulsory to write mem_write ??
+      }
       break;
 
       case OP_STI:
+      {
+        uint16_t r1 = (instr >> 9) & 0x7;
+        uint16_t pc_offset = sign_extend(instr & 0x1FF, 9);
+
+        reg[r1] = mem_read(mem_read(reg[R_PC] + pc_offset));
+      }
+      break;
+
+      case OP_STR:
+      {
+        uint16_t r0 = (instr >> 6) & 0x7;
+        uint16_t r1 = (instr >> 9) & 0x7;
+        uint16_t offset = sign_extend(instr & 0x3F, 6);
+
+        reg[r1] = mem_read(r0 + offset);
+      }
       break;
 
       case OP_TRAP:
+      {
+        uint16_t trapvect = ;
+        
+        reg[R_R7] = reg[R_PC];
+        reg[R_PC] = mem_read();
+      }
       break;
 
       case OP_RES:
