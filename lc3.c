@@ -284,13 +284,13 @@ int main(int argc, const char* argv[])
       case OP_AND:
       {
         uint16_t r0 = (instr >> 9) & 0x7;
-        uint16_t r1 = (instr >> 9) & 0x7;
+        uint16_t r1 = (instr >> 6) & 0x7;
         uint16_t imm_flag = (instr >> 5) & 0x1;
         
         if(imm_flag)
         {
-          uint16_t r2 = sign_extend(instr & 0x1F, 5);
-          reg[r0] = reg[r1] & imm_flag;
+          uint16_t imm5 = sign_extend(instr & 0x1F, 5);
+          reg[r0] = reg[r1] & imm5;
         }
         else
         {
@@ -319,7 +319,9 @@ int main(int argc, const char* argv[])
         uint16_t p = (instr >> 9) & 0x1;
         uint16_t pc_offset = instr & 0x1FF;
 
-        if ((n && FL_NEG) || (z && FL_ZRO) || (p && FL_POS))
+        if ((n && (reg[R_COND] == FL_NEG)) ||
+    (z && (reg[R_COND] == FL_ZRO)) ||
+    (p && (reg[R_COND] == FL_POS)))//((n & FL_NEG) | (z & FL_ZRO) | (p & FL_POS))
         {
           reg[R_PC] += sign_extend(pc_offset, 9);  
         }
@@ -400,7 +402,7 @@ int main(int argc, const char* argv[])
         uint16_t r1 = (instr >> 9) & 0x7;
         uint16_t pc_offset = sign_extend(instr & 0x1FF, 9);
 
-        reg[r1] = mem_read(reg[R_PC] + pc_offset); // Is it compulsory to write mem_write ??
+        mem_write(reg[R_PC] + pc_offset, reg[r1]); // Is it compulsory to write mem_write ??
       }
       break;
 
@@ -409,7 +411,7 @@ int main(int argc, const char* argv[])
         uint16_t r1 = (instr >> 9) & 0x7;
         uint16_t pc_offset = sign_extend(instr & 0x1FF, 9);
 
-        reg[r1] = mem_read(mem_read(reg[R_PC] + pc_offset));
+        mem_write(mem_read(reg[R_PC] + pc_offset), reg[r1]);
       }
       break;
 
@@ -419,7 +421,7 @@ int main(int argc, const char* argv[])
         uint16_t r1 = (instr >> 9) & 0x7;
         uint16_t offset = sign_extend(instr & 0x3F, 6);
 
-        reg[r1] = mem_read(r0 + offset);
+        mem_write(reg[r0] + offset, reg[r1]);
       }
       break;
 
